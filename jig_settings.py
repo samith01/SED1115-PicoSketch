@@ -25,6 +25,14 @@ SERVO_CAL = {
 PEN_UP_ANGLE = 30       # TODO: tune
 PEN_DOWN_ANGLE = 0
 
+# Safe angle ranges (degrees), checked by angles_within_limits (TODO: test 2)
+SHOULDER_MIN, SHOULDER_MAX = 0, 180
+ELBOW_MIN, ELBOW_MAX = 0, 180
+
+# Where park_arm leaves the arm (degrees)
+HOME_SHOULDER = 90
+HOME_ELBOW = 90
+
 # Arm geometry (mm)
 UPPER_ARM_MM = 155.0
 FOREARM_MM = 155.0

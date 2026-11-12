@@ -65,7 +65,7 @@ def park_arm(servos):
     Owner: Samith Fernando
     Inputs:  servos (dict of PWM).
     Outputs: None.
-    Operation: lifts the pen, moves the arm to a safe home position and
-               turns PWM off. Called when the program stops.
+    Operation: lifts the pen, moves the arm to HOME_SHOULDER / HOME_ELBOW
+               and turns PWM off. Called when the program stops.
     """
     pass

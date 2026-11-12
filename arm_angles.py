@@ -22,9 +22,8 @@ def clamp_to_reach(x, y):
     Inputs:  x, y (float) - requested pen position in mm.
     Outputs: (x, y) tuple - same point if reachable, otherwise the closest
              reachable point on the same line from the shoulder.
-    Operation: if the distance is more than UPPER_ARM_MM + FOREARM_MM (or
-               below the minimum reach), scales the point back inside the
-               reachable ring.
+    Operation: if the distance is more than UPPER_ARM_MM + FOREARM_MM,
+               scales the point back onto the edge of the reach circle.
     """
     pass
 
@@ -55,7 +54,8 @@ def angles_within_limits(shoulder, elbow):
     Owner: Ryan Hannum Horne
     Inputs:  shoulder, elbow (float) - angles in degrees.
     Outputs: bool - True if both are within the safe servo range.
-    Operation: compares each angle against its min/max limit.
+    Operation: checks SHOULDER_MIN <= shoulder <= SHOULDER_MAX and
+               ELBOW_MIN <= elbow <= ELBOW_MAX.
     """
     pass
 
