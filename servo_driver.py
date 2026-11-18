@@ -4,6 +4,13 @@ the shoulder, elbow and pen servos (through the safe arm-control
 function provided by the instructor).
 Owner: Samith Fernando
 """
+import time
+from jig_settings import *
+
+# translate() is the safe servo function given to us by the instructor
+# (servo_translator.py, SED1115 lab files). It turns an angle into a
+# duty_u16 value and clamps it to 0..180 so the servo can't be damaged.
+from servo_translator import translate
 
 
 def init_servos(pins, freq):
@@ -14,7 +21,14 @@ def init_servos(pins, freq):
     Outputs: dict of machine.PWM objects with the same keys.
     Operation: creates a PWM object per servo pin and sets its frequency.
     """
-    pass
+    from machine import PWM, Pin
+
+    servos = {}
+    for name in pins:
+        pwm = PWM(Pin(pins[name]))
+        pwm.freq(freq)
+        servos[name] = pwm
+    return servos
 
 
 def angle_to_duty(angle, cal):
@@ -25,7 +39,12 @@ def angle_to_duty(angle, cal):
     Operation: clamps angle to 0..180 and interpolates linearly between
                the calibrated duty values.
     """
-    pass
+    if angle < 0:
+        angle = 0
+    if angle > 180:
+        angle = 180
+    duty = cal["duty_0"] + (cal["duty_180"] - cal["duty_0"]) * angle / 180
+    return int(duty)
 
 
 def set_servo_angle(pwm, angle, cal):
@@ -35,7 +54,7 @@ def set_servo_angle(pwm, angle, cal):
     Outputs: None.
     Operation: pwm.duty_u16(angle_to_duty(angle, cal)).
     """
-    pass
+    pwm.duty_u16(angle_to_duty(angle, cal))
 
 
 def move_arm(servos, shoulder, elbow):
@@ -47,7 +66,8 @@ def move_arm(servos, shoulder, elbow):
                arm-control function (credited in a comment), which moves
                the shoulder and elbow servos without damaging the arm.
     """
-    pass
+    servos["shoulder"].duty_u16(translate(shoulder))
+    servos["elbow"].duty_u16(translate(elbow))
 
 
 def set_pen(servos, pen_down):
@@ -57,7 +77,10 @@ def set_pen(servos, pen_down):
     Outputs: None.
     Operation: sets the pen servo to PEN_DOWN_ANGLE or PEN_UP_ANGLE.
     """
-    pass
+    if pen_down:
+        set_servo_angle(servos["pen"], PEN_DOWN_ANGLE, SERVO_CAL["pen"])
+    else:
+        set_servo_angle(servos["pen"], PEN_UP_ANGLE, SERVO_CAL["pen"])
 
 
 def park_arm(servos):
@@ -68,4 +91,8 @@ def park_arm(servos):
     Operation: lifts the pen, moves the arm to HOME_SHOULDER / HOME_ELBOW
                and turns PWM off. Called when the program stops.
     """
-    pass
+    set_pen(servos, False)
+    move_arm(servos, HOME_SHOULDER, HOME_ELBOW)
+    time.sleep(0.5)  # give the servos time to get there before turning off
+    for name in servos:
+        servos[name].deinit()
