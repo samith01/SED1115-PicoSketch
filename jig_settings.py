@@ -8,30 +8,30 @@ Values marked TODO are measured on the jig during calibration (test 3).
 # Input pins (accessory board)
 X_POT_PIN = 26          # ADC0, horizontal knob
 Y_POT_PIN = 27          # ADC1, vertical knob
-PEN_SWITCH_PIN = 22     # TODO: confirm on accessory board
+PEN_SWITCH_PIN = 12     # tested on jig, wired with pull-down (1 = pressed)
 
 # Servo PWM pins
-SHOULDER_PIN = 0        # TODO: confirm on jig
+SHOULDER_PIN = 0        # tested on jig
 ELBOW_PIN = 1
 PEN_PIN = 2
 SERVO_FREQ_HZ = 50
 
-# Servo calibration: duty_u16 at 0 and 180 degrees (TODO: measure)
+# Servo calibration: duty_u16 at 0 and 180 degrees (same as translate())
 SERVO_CAL = {
     "shoulder": {"duty_0": 1638, "duty_180": 8192},
     "elbow":    {"duty_0": 1638, "duty_180": 8192},
     "pen":      {"duty_0": 1638, "duty_180": 8192},
 }
-PEN_UP_ANGLE = 30       # TODO: tune
-PEN_DOWN_ANGLE = 0
+PEN_UP_ANGLE = 0        # tested on jig
+PEN_DOWN_ANGLE = 30
 
 # Safe angle ranges (degrees), checked by angles_within_limits (TODO: test 2)
 SHOULDER_MIN, SHOULDER_MAX = 0, 180
 ELBOW_MIN, ELBOW_MAX = 0, 180
 
 # Where park_arm leaves the arm (degrees)
-HOME_SHOULDER = 90
-HOME_ELBOW = 90
+HOME_SHOULDER = 20      # tested on jig, pen at (0, 0)
+HOME_ELBOW = 30
 
 # Arm geometry (mm)
 UPPER_ARM_MM = 155.0
@@ -41,6 +41,10 @@ SHOULDER_XY = (-50.0, 139.5)
 # Drawing area on the paper (mm)
 X_MIN, X_MAX = 0.0, 215.0
 Y_MIN, Y_MAX = 0.0, 279.0
+
+# Raw knob range measured on the accessory board
+KNOB_MIN = 320
+KNOB_MAX = 65535
 
 # Knob smoothing and loop timing
 SMOOTH_SAMPLES = 8
