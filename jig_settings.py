@@ -1,52 +1,39 @@
 """
 jig_settings.py - constants for the PicoSketch brachiograph.
 Owner: Samith Fernando
-No functions: pin numbers, servo calibration and arm geometry only.
-Values marked TODO are measured on the jig during calibration (test 3).
+No functions: pin numbers and values we measured on the jig.
 """
 
 # Input pins (accessory board)
 X_POT_PIN = 26          # ADC0, horizontal knob
 Y_POT_PIN = 27          # ADC1, vertical knob
-PEN_SWITCH_PIN = 12     # tested on jig, wired with pull-down (1 = pressed)
-
-# Servo PWM pins
-SHOULDER_PIN = 0        # tested on jig
-ELBOW_PIN = 1
-PEN_PIN = 2
-SERVO_FREQ_HZ = 50
-
-# Servo calibration: duty_u16 at 0 and 180 degrees (same as translate())
-SERVO_CAL = {
-    "shoulder": {"duty_0": 1638, "duty_180": 8192},
-    "elbow":    {"duty_0": 1638, "duty_180": 8192},
-    "pen":      {"duty_0": 1638, "duty_180": 8192},
-}
-PEN_UP_ANGLE = 0        # tested on jig
-PEN_DOWN_ANGLE = 30
-
-# Safe angle ranges (degrees), checked by angles_within_limits (TODO: test 2)
-SHOULDER_MIN, SHOULDER_MAX = 0, 180
-ELBOW_MIN, ELBOW_MAX = 0, 180
-
-# Where park_arm leaves the arm (degrees)
-HOME_SHOULDER = 20      # tested on jig, pen at (0, 0)
-HOME_ELBOW = 30
-
-# Arm geometry (mm)
-UPPER_ARM_MM = 155.0
-FOREARM_MM = 155.0
-SHOULDER_XY = (-50.0, 139.5)
-
-# Drawing area on the paper (mm)
-X_MIN, X_MAX = 0.0, 215.0
-Y_MIN, Y_MAX = 0.0, 279.0
+PEN_SWITCH_PIN = 12     # wired with pull-down (1 = pressed)
 
 # Raw knob range measured on the accessory board
 KNOB_MIN = 320
 KNOB_MAX = 65535
 
-# Knob smoothing and loop timing
-SMOOTH_SAMPLES = 8
-DEBOUNCE_MS = 50
+# Servo PWM pins
+SHOULDER_PIN = 0
+ELBOW_PIN = 1
+PEN_PIN = 2
+SERVO_FREQ_HZ = 50
+
+# Pen servo angles
+PEN_UP_ANGLE = 0
+PEN_DOWN_ANGLE = 30
+
+# Arm length (both arms are the same), mm
+ARM_MM = 155.0
+
+# Servo angles (shoulder, elbow) measured with the pen at 3 corners of
+# the drawing area. arm_angles.py works out the paper from these.
+HOME_POSE = (20, 30)    # pen at (0, 0), also where the arm parks
+X_MAX_POSE = (140, 30)  # pen at the far end of X
+Y_MAX_POSE = (90, 85)   # pen at the far end of Y
+
+# elbow servo angle -> bend between the arms: bend = ELBOW_ZERO - elbow
+# worked out from the 3 poses above so the X and Y lines come out square
+ELBOW_ZERO = 184
+
 LOOP_DELAY_MS = 20

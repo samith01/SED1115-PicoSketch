@@ -1,58 +1,26 @@
 """
-knob_reader.py - reads the X and Y potentiometers and turns them into
-a target pen position (x, y) in mm on the paper.
+knob_reader.py - reads the two knobs and the pen button.
 Owner: Klara Kerekes
 """
+from jig_settings import *
 
 
-def init_knobs(x_pin, y_pin):
-    """
-    Owner: Klara Kerekes
-    Inputs:  x_pin, y_pin (int) - GPIO numbers of the two pots.
-    Outputs: (x_adc, y_adc) tuple of machine.ADC objects.
-    Operation: creates one ADC object per pin so the knobs can be read.
-    """
-    pass
-
-
-def read_raw(adc):
+def knob(adc):
     """
     Owner: Klara Kerekes
     Inputs:  adc (machine.ADC) - one knob.
-    Outputs: int 0 to 65535 - raw knob reading.
-    Operation: calls adc.read_u16() and returns the value.
+    Outputs: float 0.0 to 1.0 - how far the knob is turned.
+    Operation: scales adc.read_u16() from KNOB_MIN..KNOB_MAX to 0..1,
+               clamped so it never goes below 0 or above 1.
     """
     pass
 
 
-def smooth_reading(history, new_value, size):
+def button_pressed(button):
     """
     Owner: Klara Kerekes
-    Inputs:  history (list of int) - recent readings, modified in place;
-             new_value (int) - newest reading; size (int) - max samples kept.
-    Outputs: int - average of the readings in history.
-    Operation: appends new_value, drops the oldest if longer than size,
-               returns the average to remove knob jitter.
-    """
-    pass
-
-
-def map_range(value, in_min, in_max, out_min, out_max):
-    """
-    Owner: Klara Kerekes
-    Inputs:  value (number) and the input/output ranges (numbers).
-    Outputs: float - value scaled linearly into [out_min, out_max].
-    Operation: linear interpolation, clamped to the output range.
-    """
-    pass
-
-
-def read_target_xy(x_adc, y_adc, x_hist, y_hist):
-    """
-    Owner: Klara Kerekes
-    Inputs:  x_adc, y_adc (machine.ADC); x_hist, y_hist (list) - smoothing buffers.
-    Outputs: (x_mm, y_mm) tuple of floats - target pen position on the paper.
-    Operation: read_raw -> smooth_reading -> map_range from 0..65535
-               to the X_MIN..X_MAX / Y_MIN..Y_MAX drawing area.
+    Inputs:  button (machine.Pin) - pen switch, pull-down.
+    Outputs: bool - True while the switch is held down.
+    Operation: button.value() == 1 (switch reads 1 when pressed).
     """
     pass
