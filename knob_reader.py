@@ -7,7 +7,6 @@ import time
 from main import set_pen #the movement of the pen depending on what it already set to
 #import jig_settings
 from jig_settings import PEN_DOWN_ANGLE, PEN_UP_ANGLE, PEN_PIN, KNOB_MAX, KNOB_MIN
-from main import set_pen #the movement of the pen depending on what it already set to
 from servo_translator import translate #for translating the servo angle into PWM value servo will accepted
 
 
