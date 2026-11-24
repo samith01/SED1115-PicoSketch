@@ -87,8 +87,8 @@ def button_pressed(button):
     pass #allows tot exit from this section & move onto next part of code
 
 
-while True:
-    knob()
-    button_pressed(sw3) #calling to run the function above when the condition is met
-    time.sleep(0.5)
+# while True:
+#     knob()
+#     button_pressed(sw3) #calling to run the function above when the condition is met
+#     time.sleep(0.5)
         
