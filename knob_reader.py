@@ -1,59 +1,94 @@
+""" Owner: Klara Kerekes
+    knob_reader.py - reads the two knobs and the pen button.
 """
-knob_reader.py - reads the two knobs and the pen button.
-Owner: Klara Kerekes
-"""
-from jig_settings import *
+
+from machine import Pin, PWM, ADC
+import time
+from main import set_pen #the movement of the pen depending on what it already set to
+#import jig_settings
+from jig_settings import PEN_DOWN_ANGLE, PEN_UP_ANGLE, PEN_PIN, KNOB_MAX, KNOB_MIN
+from main import set_pen #the movement of the pen depending on what it already set to
+from servo_translator import translate #for translating the servo angle into PWM value servo will accepted
 
 
-def knob(adc):
-    """
-    Owner: Klara Kerekes
+#Mapping degreee of rotation of knobs (GP 26 & 27) controlling movement in x & y directions,respectively, into range 
+""" Owner: Klara Kerekes
     Inputs:  adc (machine.ADC) - one knob.
     Outputs: float 0.0 to 1.0 - how far the knob is turned.
     Operation: scales adc.read_u16() from KNOB_MIN..KNOB_MAX to 0..1,
                clamped so it never goes below 0 or above 1.
-    """
-    pass
+"""
 
-def set_pen(servos, angle): #will be called and ran in button_pressed bc to call the desired angle to be moved to 
-        #have to translate the angle as an int into a value that the servo will accepts
-    servos.duty_u16(translate(angle)) #translate formula
+#knob Pin's that corresponds to the control of movement in x & y direction for shoulder and elbow servos, respectively
+x_knob = ADC(Pin(26)) 
+y_knob = ADC(Pin(27)) 
+
+
+#Maps the ADC values into the desired range of 0.0 to 1.0 (floats) and clamps & restricts anything outside of it
+#works in tandom with knob() function
+def map_adc_clamped(value, in_min, in_max, out_min, out_max):
+    mapped = (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min #how the mapped values in range are determined
+    low, high = min(out_min, out_max), max(out_min, out_max) #to determine if mapped values are outside of range
+    return max(low, min(high, mapped)) #returns within the acceptable range
+
+#have to do reading and mapping for each knob pin
+def knob():
+    #read ADC values directly from the knob Pin's
+    x_raw_knob_value = x_knob.read_u16() 
+    y_raw_knob_value = y_knob.read_u16()
     
-def button_pressed(button):
-    """
-    Owner: Klara Kerekes
+    #maps and clamps those raw values into the range
+    x_values_mapped = map_adc_clamped(x_raw_knob_value, 320, 65535, 0.0, 1.0)
+    y_values_mapped = map_adc_clamped(y_raw_knob_value, 320, 65535, 0.0, 1.0)
+
+    print(f"x knob values(GP26): {x_values_mapped}			|knob values (GP27): {y_values_mapped}") #prints out mapped values the range as they change
+
+
+#Changing the wrist servo angle every time a button (GP12) is pressed to opposite of current position
+""" Owner: Klara Kerekes
     Inputs:  button (machine.Pin) - pen switch, pull-down.
     Outputs: bool - True while the switch is held down.
     Operation: button.value() == 1 (switch reads 1 when pressed).
-    """
+ """
+
+pen_down = PEN_DOWN_ANGLE
+pen_up = PEN_UP_ANGLE
+
+state = False #state when program starts. Also, when button is not pressed
+
+sw3 = Pin(12, Pin.IN, Pin.PULL_DOWN) #button that is to be prssed for the action of lighting up LED
+      
+servos = PWM(Pin(PEN_PIN)) #Pin in GP2 on accessory board. Already defined in jig_settings, so imported
+servos.freq(50)
+
+
+#translating from int desire angle degree to PWM so servo can move to position  
+def set_pen(servo, angle): 
+    servo.duty_u16(translate(angle)) #takes angle values translates to a duty_u16 value (servos understand) & send to it    
+
+def button_pressed(button):
     global state
-    while True:
-        if sw3.value() and state == False : #Lowering Servo angle arm #empty means zerio, 0, which is true
-            state = True
-            
-            set_pen(servos, pen_down) #calling function set_pen and running it according to how it's written in main.py
-             
-            time.sleep(0.5) # time before another button pressed will be registered. Anything before won't be considered
-            while sw3.value(): # wait till we release the button, for which the value will be 0, False for that
-                pass # button released  
+    if sw3.value() and state == False : #Lowering Servo angle arm #empty means zerio, 0, which is true
+        state = True
         
-       
-        if sw3.value() and state == True : #Raising Servo angle arm
-            state = False
+        set_pen(servos, PEN_DOWN_ANGLE)  #calling function set_pen to set servo to angle down, 30 degress
+         
+        while sw3.value(): #blank brackets mean value of 0 (False), occurs when button is released
+            pass # don't want anything else to happen so tell program to move on
             
-            set_pen(servos, pen_down) #calling function set_pen to set the servo angle to != pen_down, but rather PEN_UP_ANGLE
-                #calling function set_pen (from main) to set the servo angle to the degree associated w/PEN_UP_ANGLE (30 degrees)
+    if sw3.value() and state == True : #when swtich value is 0 (false) and state value are True angle of Servo arm will raise
+        state = False #opposite of pre
+        
+        set_pen(servos, PEN_UP_ANGLE) #calling function set_pen to set servo to angle up, 0 degress
+
+        while sw3.value(): #value of 0 (False), occurs when button is released
+            pass # nothing else required
+            
+    pass #allows tot exit from this section & move onto next part of code
 
 
-            time.sleep(0.5) # time before another button press is registered and acted upon
-            while sw3.value(): # when button value is 0 (false), when release doesn't do anything 
-                pass
-            # button released
-             
-
-button_pressed(sw3) #calling to run the function above when the condition is met
-    #outside of function so that when sw3 is pressed it'll
-
-
-    
-    pass
+while True:
+    knob()
+    button_pressed(sw3) #calling to run the function above when the condition is met
+    time.sleep(0.5)
+        
