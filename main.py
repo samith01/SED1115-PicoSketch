@@ -3,14 +3,48 @@ main.py - runs on Pico start-up. Reads the knobs and button, moves the
 arm and pen, forever.
 Owner: Samith Fernando
 """
+from machine import Pin, PWM
 import time
 from jig_settings import *
-from knob_reader import knob, button_pressed
+from knob_reader import knob
 from arm_angles import servo_angles
 
 # translate() is the safe servo function given to us by the instructor
 # (servo_translator.py, SED1115 lab files). Angle -> duty_u16, clamped 0..180.
 from servo_translator import translate
+
+state = False #state when program starts. Also, when button is not pressed
+
+sw3 = Pin(12, Pin.IN, Pin.PULL_DOWN) #button that is to be prssed for the action of lighting up LED
+      
+servos = PWM(Pin(PEN_PIN)) #Pin in GP2 on accessory board. Already defined in jig_settings, so imported
+servos.freq(50)
+
+
+#translating from int desire angle degree to PWM so servo can move to position  
+def set_pen(servo, angle): 
+    servo.duty_u16(translate(angle)) #takes angle values translates to a duty_u16 value (servos understand) & send to it    
+
+def button_pressed(button):
+    global state
+    if sw3.value() and state == False : #Lowering Servo angle arm #empty means zerio, 0, which is true
+        state = True
+        
+        set_pen(servos, PEN_DOWN_ANGLE)  #calling function set_pen to set servo to angle down, 30 degress
+         
+        while sw3.value(): #blank brackets mean value of 0 (False), occurs when button is released
+            pass # don't want anything else to happen so tell program to move on
+            
+    if sw3.value() and state == True : #when swtich value is 0 (false) and state value are True angle of Servo arm will raise
+        state = False #opposite of pre
+        
+        set_pen(servos, PEN_UP_ANGLE) #calling function set_pen to set servo to angle up, 0 degress
+
+        while sw3.value(): #value of 0 (False), occurs when button is released
+            pass # nothing else required
+            
+    pass #allows tot exit from this section & move onto next part of code
+
 
 
 def move_arm(servos, shoulder, elbow):
