@@ -3,7 +3,7 @@ main.py - runs on Pico start-up. Reads the knobs and button, moves the
 arm and pen, forever.
 Owner: Samith Fernando
 """
-from machine import Pin, PWM
+from machine import Pin, PWM, ADC
 import time
 from jig_settings import *
 from knob_reader import knob
@@ -43,7 +43,7 @@ def button_pressed(button):
         while sw3.value(): #value of 0 (False), occurs when button is released
             pass # nothing else required
             
-    pass #allows tot exit from this section & move onto next part of code
+    pass #allows to exit from this section & move onto next part of code
 
 
 
@@ -93,7 +93,6 @@ def main():
                move_arm, and toggles the pen on each button press.
                Always parks the arm when the program stops.
     """
-    from machine import PWM, ADC, Pin
 
     x_pot = ADC(X_POT_PIN)
     y_pot = ADC(Y_POT_PIN)
@@ -109,9 +108,10 @@ def main():
     pen_down = False
     was_pressed = False
     set_pen(servos, pen_down)
-
+    print("test")
     try:
         while True:
+            print(knob(x_pot))
             s, e = servo_angles(knob(x_pot), knob(y_pot))
             move_arm(servos, s, e)
 
