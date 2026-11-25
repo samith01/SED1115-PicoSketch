@@ -18,10 +18,6 @@ wristPostionButton = Pin(12, Pin.IN, Pin.PULL_DOWN) #button that is to be prssed
 
 homePostionButton = Pin(22, Pin.IN, Pin.PULL_DOWN) #button that is to be prssed for the action of lighting up LED
 
-penServo = PWM(Pin(PEN_PIN)) #Pin in GP2 on accessory board. Already defined in jig_settings, so imported
-penServo.freq(50)
-penServo.duty_u16(translate(PEN_UP_ANGLE)) #initially, the pen is up when program starts
-
 penIsDown = False #state when program starts. Also, when button is not pressed
 
 
@@ -98,6 +94,7 @@ def main():
     servos["shoulder"] = PWM(Pin(SHOULDER_PIN))
     servos["elbow"] = PWM(Pin(ELBOW_PIN))
     servos["pen"] = PWM(Pin(PEN_PIN))
+
     for name in servos:
         servos[name].freq(SERVO_FREQ_HZ)
 
@@ -108,10 +105,7 @@ def main():
 
             # toggle the pen only when the button goes from up to down
             button_pressed(button)
-            if penIsDown:
-                set_pen(servos, PEN_DOWN_ANGLE)
-            else:
-                set_pen(servos, PEN_UP_ANGLE)
+            set_pen(servos, penIsDown)
 
             time.sleep_ms(LOOP_DELAY_MS)
 
