@@ -13,33 +13,32 @@ from arm_angles import servo_angles
 # (servo_translator.py, SED1115 lab files). Angle -> duty_u16, clamped 0..180.
 from servo_translator import translate
 
-state = False #state when program starts. Also, when button is not pressed
 
-sw3 = Pin(12, Pin.IN, Pin.PULL_DOWN) #button that is to be prssed for the action of lighting up LED
-      
-servos = PWM(Pin(PEN_PIN)) #Pin in GP2 on accessory board. Already defined in jig_settings, so imported
-servos.freq(50)
+wristPostionButton = Pin(12, Pin.IN, Pin.PULL_DOWN) #button that is to be prssed for the action of lighting up LED
 
+homePostionButton = Pin(22, Pin.IN, Pin.PULL_DOWN) #button that is to be prssed for the action of lighting up LED
+
+penServo = PWM(Pin(PEN_PIN)) #Pin in GP2 on accessory board. Already defined in jig_settings, so imported
+penServo.freq(50)
+penServo.duty_u16(translate(PEN_UP_ANGLE)) #initially, the pen is up when program starts
+
+penIsDown = False #state when program starts. Also, when button is not pressed
 
 
 def button_pressed(button):
-    global state
-    if sw3.value() and state == False : #Lowering Servo angle arm #empty means zero, 0, which is true
-        state = True
-        
-        set_pen(servos, PEN_DOWN_ANGLE)  #calling function set_pen to set servo to angle down, 30 degress
-         
-        #For button bounce
-        while sw3.value(): #blank brackets mean value of 0 (False), occurs when button is released
+    global penIsDown
+    if wristPostionButton.value() and penIsDown == False : #Lowering Servo angle arm #empty means zerio, 0, which is true
+        penIsDown = True
+                 
+        while wristPostionButton.value(): #blank brackets mean value of 0 (False), occurs when button is released
             pass # don't want anything else to happen so tell program to move on
             
-    if sw3.value() and state == True : #when swtich value is 0 (false) and state value are True angle of Servo arm will raise
-        state = False #opposite of pre
+    if wristPostionButton.value() and penIsDown == True : #when swtich value is 0 (false) and state value are True angle of Servo arm will raise
+        penIsDown = False #opposite of pre
         
-        while sw3.value(): #value of 0 (False), occurs when button is released
+        while wristPostionButton.value(): #value of 0 (False), occurs when button is released
             pass # nothing else required
-
-            
+    
     pass #allows to exit from this section & move onto next part of code
 
 
@@ -102,24 +101,20 @@ def main():
     for name in servos:
         servos[name].freq(SERVO_FREQ_HZ)
 
-    pen_down = False
-    was_pressed = False
-    set_pen(servos, pen_down)
-    print("test")
     try:
         while True:
-            print(knob(x_pot))
-            s, e = servo_angles(knob(x_pot), knob(y_pot))
+            s, e = servo_angles(knob(x_pot,"x"), knob(y_pot,"y"))
             move_arm(servos, s, e)
 
             # toggle the pen only when the button goes from up to down
-            pressed = button_pressed(button)
-            if pressed and not was_pressed:
-                pen_down = not pen_down
-                set_pen(servos, pen_down)
-            was_pressed = pressed
+            button_pressed(button)
+            if penIsDown:
+                set_pen(servos, PEN_DOWN_ANGLE)
+            else:
+                set_pen(servos, PEN_UP_ANGLE)
 
             time.sleep_ms(LOOP_DELAY_MS)
+
     finally:
         park_arm(servos)
 

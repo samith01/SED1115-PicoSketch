@@ -4,9 +4,6 @@
 
 from machine import PWM, Pin,  ADC
 import time
-from main import set_pen #the movement of the pen depending on what it already set to
-#import jig_settings
-from jig_settings import PEN_DOWN_ANGLE, PEN_UP_ANGLE, PEN_PIN, KNOB_MAX, KNOB_MIN
 from servo_translator import translate #for translating the servo angle into PWM value servo will accepted
 
 
@@ -31,14 +28,13 @@ def map_adc_clamped(value, in_min, in_max, out_min, out_max):
     return max(low, min(high, mapped)) #returns within the acceptable range
 
 #have to do reading and mapping for each knob pin
-def knob(pot_pin):
+def knob(pot_pin,name):
     # print("test 2")
     # #read ADC values directly from the knob Pin's
-    # raw_knob_value = pot_pin.read_u16() 
+    raw_knob_value = pot_pin.read_u16() 
     
     # #maps and clamps those raw values into the range
-    # values_mapped = map_adc_clamped(raw_knob_value, 320, 65535, 0.0, 1.0)
+    values_mapped = map_adc_clamped(raw_knob_value, 320, 65535, 0.0, 1.0)
 
-    # print(f"x knob values(GP26): {values_mapped}			|knob values (GP27): {values_mapped}") #prints out mapped values the range as they change
-    # #return values_mapped
-    return 0 
+    print(f"{name} knob value: {values_mapped}") #prints out mapped values the range as they change
+    return values_mapped
