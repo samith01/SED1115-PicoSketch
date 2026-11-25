@@ -108,11 +108,9 @@ def main():
     pen_down = False
     was_pressed = False
     set_pen(servos, pen_down)
-    print("test")
     try:
         while True:
-            print(knob(x_pot))
-            s, e = servo_angles(knob(x_pot), knob(y_pot))
+            s, e = servo_angles(knob(x_pot,"x"), knob(y_pot,"y"))
             move_arm(servos, s, e)
 
             # toggle the pen only when the button goes from up to down
