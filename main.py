@@ -14,8 +14,10 @@ from arm_angles import servo_angles
 from servo_translator import translate
 
 
-sw3 = Pin(12, Pin.IN, Pin.PULL_DOWN) #button that is to be prssed for the action of lighting up LED
-      
+wristPostionButton = Pin(12, Pin.IN, Pin.PULL_DOWN) #button that is to be prssed for the action of lighting up LED
+
+homePostionButton = Pin(22, Pin.IN, Pin.PULL_DOWN) #button that is to be prssed for the action of lighting up LED
+
 penServo = PWM(Pin(PEN_PIN)) #Pin in GP2 on accessory board. Already defined in jig_settings, so imported
 penServo.freq(50)
 penServo.duty_u16(translate(PEN_UP_ANGLE)) #initially, the pen is up when program starts
@@ -28,18 +30,18 @@ def set_pen(servo, angle):
 
 def button_pressed(button):
     global penIsDown
-    if sw3.value() and penIsDown == False : #Lowering Servo angle arm #empty means zerio, 0, which is true
+    if wristPostionButton.value() and penIsDown == False : #Lowering Servo angle arm #empty means zerio, 0, which is true
         penIsDown = True
                  
-        while sw3.value(): #blank brackets mean value of 0 (False), occurs when button is released
+        while wristPostionButton.value(): #blank brackets mean value of 0 (False), occurs when button is released
             pass # don't want anything else to happen so tell program to move on
             
-    if sw3.value() and penIsDown == True : #when swtich value is 0 (false) and state value are True angle of Servo arm will raise
+    if wristPostionButton.value() and penIsDown == True : #when swtich value is 0 (false) and state value are True angle of Servo arm will raise
         penIsDown = False #opposite of pre
         
-        while sw3.value(): #value of 0 (False), occurs when button is released
+        while wristPostionButton.value(): #value of 0 (False), occurs when button is released
             pass # nothing else required
-            
+    
     pass #allows to exit from this section & move onto next part of code
 
 
@@ -113,8 +115,9 @@ def main():
                 set_pen(servos, PEN_DOWN_ANGLE)
             else:
                 set_pen(servos, PEN_UP_ANGLE)
-                
+
             time.sleep_ms(LOOP_DELAY_MS)
+
     finally:
         park_arm(servos)
 
